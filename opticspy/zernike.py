@@ -255,7 +255,7 @@ class Coefficient(object):
 		PSF = PSF/PSF.max()
 		return PSF
 
-	def psf(self,r=1,lambda_1=632*10**(-9),z=0.1):
+	def psf(self,r=1,lambda_1=632*10**(-9),z=0.1, draw=True, matrix=False):
 		"""
 		------------------------------------------------
 		psf()
@@ -270,23 +270,32 @@ class Coefficient(object):
 		lambda_1: wavelength(m)
 
 		z: exit pupil to image plane distance(m)
+		draw: boolean, if true, then draw psf
+		matrix: boolen, if true, then return PSF matrix
 
 		"""
 		print(r,lambda_1,z)
 		PSF = self.__psfcaculator__(r=r,lambda_1=lambda_1,z=z)
-		fig = __plt__.figure(figsize=(9, 6), dpi=80)
-		__plt__.imshow(abs(PSF),cmap=__cm__.RdYlGn)
-		__plt__.colorbar()
-		__plt__.show()
-		return 0
+		if draw:
+			fig = __plt__.figure(figsize=(9, 6), dpi=80)
+			__plt__.imshow(abs(PSF),cmap=__cm__.RdYlGn)
+			__plt__.colorbar()
+			__plt__.show()
+		if matrix:
+			return PSF
+		else:
+		    return 0
 
-	def otf(self,r=1,lambda_1=632*10**(-9),z=0.1):
+	def otf(self,r=1,lambda_1=632*10**(-9),z=0.1,matrix = False):
 		PSF = self.__psfcaculator__(r=r,lambda_1=lambda_1,z=z)
 		OTF = __fftshift__(__fft2__(PSF))
-		return 0
+		if matrix:
+			return OTF
+		else:
+			return 0
 
 
-	def mtf(self,r=1,lambda_1=632*10**(-9),z=0.1,matrix = False):
+	def mtf(self,r=1,lambda_1=632*10**(-9),z=0.1,draw=True, matrix=False):
 		"""
 		Modulate Transfer function
 		"""
@@ -294,10 +303,11 @@ class Coefficient(object):
 		MTF = __fftshift__(__fft2__(PSF))
 		MTF = MTF/MTF.max()
 		f0 = r/1000/lambda_1/z/10000   # cutoff frequency?
-		fig = __plt__.figure(figsize=(9, 6), dpi=80)
-		__plt__.imshow(abs(MTF),cmap=__cm__.bwr)
-		__plt__.colorbar()
-		__plt__.show()
+		if draw:
+			fig = __plt__.figure(figsize=(9, 6), dpi=80)
+			__plt__.imshow(abs(MTF),cmap=__cm__.bwr)
+			__plt__.colorbar()
+			__plt__.show()
 		if matrix == True:
 			return MTF
 		else:
